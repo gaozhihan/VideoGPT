@@ -20,7 +20,8 @@ Change the `cudatoolkit` version compatible to your machine.
 [comment]: <> (```)
 ```
 python -m pip install torch==1.8.1+cu111 torchvision==0.9.1+cu111 torchaudio==0.8.1 -f https://download.pytorch.org/whl/lts/1.8/torch_lts.html
-python -m pip install git+https://github.com/gaozhihan/VideoGPT.git
+python -m pip install pytorch-lightning==1.3.5
+python -m pip install -U -e . --no-build-isolation
 ```
 
 ### Sparse Attention (Optional)

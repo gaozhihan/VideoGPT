@@ -6,7 +6,7 @@ def parse_requirements(filename):
 
 setup(name='VideoGPT', version='1.0',
       description='PyTorch package for VideoGPT',
-      url='http://github.com/wilson1yan/VideoGPT',
+      url='http://github.com/gaozhihan/VideoGPT',
       author='Wilson Yan',
       author_email='wilson1.yan@berkeley.edu',
       license='BSD',
