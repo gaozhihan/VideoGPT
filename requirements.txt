@@ -3,7 +3,7 @@ requests
 h5py
 torch==1.8.1+cu111
 torchvision==0.9.1+cu111
-torchtext==0.8.1
+torchtext==0.9.1
 pytorch_lightning==1.3.5
 scikit-video
 av
