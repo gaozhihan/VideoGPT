@@ -10,9 +10,17 @@ We present VideoGPT: a conceptually simple architecture for scaling likelihood b
 
 ## Installation
 Change the `cudatoolkit` version compatible to your machine.
-```bash
-$ conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0
-$ pip install git+https://github.com/wilson1yan/VideoGPT.git
+
+[comment]: <> (```bash)
+
+[comment]: <> ($ conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0)
+
+[comment]: <> ($ pip install git+https://github.com/wilson1yan/VideoGPT.git)
+
+[comment]: <> (```)
+```
+python -m pip install torch==1.8.1+cu111 torchvision==0.9.1+cu111 torchaudio==0.8.1 -f https://download.pytorch.org/whl/lts/1.8/torch_lts.html
+python -m pip install git+https://github.com/gaozhihan/VideoGPT.git
 ```
 
 ### Sparse Attention (Optional)
