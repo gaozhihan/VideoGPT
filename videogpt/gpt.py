@@ -46,7 +46,7 @@ class VideoGPT(pl.LightningModule):
             frame_cond_shape = None
 
         # VideoGPT transformer
-        self.shape = self.vqvae.latent_shape
+        self.shape = self.vqvae.latent_shape  # downsampled (seq_len, resolution, resolution)
 
         self.fc_in = nn.Linear(self.vqvae.embedding_dim, args.hidden_dim, bias=False)
         self.fc_in.weight.data.normal_(std=0.02)
@@ -80,14 +80,19 @@ class VideoGPT(pl.LightningModule):
             if self.use_frame_cond:
                 cond['frame_cond'] = video[:, :, :self.hparams.n_cond_frames]
 
-        samples = torch.zeros((n,) + self.shape).long().to(device)
+        samples = torch.zeros((n,) + self.shape).long().to(device)  # int64
         idxs = list(itertools.product(*[range(s) for s in self.shape]))
+        # see https://docs.python.org/3/library/itertools.html#itertools.product
+        # idxs: list of tuple, each tuple is (t_idx, h_idx, w_idx), e.g, (0, 0, 0), (0, 0, 1), ..., (3, 31, 31)
 
         with torch.no_grad():
             prev_idx = None
             for i, idx in enumerate(tqdm(idxs)):
+                # no slicing along channel dim
                 batch_idx_slice = (slice(None, None), *[slice(i, i + 1) for i in idx])
+                # [:, t_idx: t_idx+1, h_idx: h_idx+1, w_idx: w_idx+1]
                 batch_idx = (slice(None, None), *idx)
+                # [:, t_idx, h_idx, w_idx]
                 embeddings = self.vqvae.codebook.dictionary_lookup(samples)
 
                 if prev_idx is None:
@@ -97,14 +102,18 @@ class VideoGPT(pl.LightningModule):
                     samples_slice = samples[batch_idx_slice]
                 else:
                     embeddings_slice = embeddings[prev_idx]
+                    # shape = (n, 1, 1, 1, embed_dim) = (n, 1, 1, 1, 256)
                     samples_slice = samples[prev_idx]
+                    # shape = (n, 1, 1, 1)
 
                 logits = self(embeddings_slice, samples_slice, cond,
                               decode_step=i, decode_idx=idx)[1]
+                # shape = (n, 1, 1, 1, vqvae_n_code) = (n, 1, 1, 1, 2048)
                 # squeeze all possible dim except batch dimension
                 logits = logits.squeeze().unsqueeze(0) if logits.shape[0] == 1 else logits.squeeze()
                 probs = F.softmax(logits, dim=-1)
                 samples[batch_idx] = torch.multinomial(probs, 1).squeeze(-1)
+                # return the drawn indices, shape = (n, )
 
                 prev_idx = batch_idx_slice
             samples = self.vqvae.decode(samples)
@@ -144,9 +153,10 @@ class VideoGPT(pl.LightningModule):
             cond['frame_cond'] = x[:, :, :self.hparams.n_cond_frames]
 
         with torch.no_grad():
-            targets, x = self.vqvae.encode(x, include_embeddings=True)
+            targets, x = self.vqvae.encode(x, include_embeddings=True)  # target is encodings, x is embeddings
             x = shift_dim(x, 1, -1)
-
+        # x.shape = (batch_size, t, h, w, embed_dim)
+        # targets.shape = (batch_size, t, h, w)
         loss, _ = self(x, targets, cond)
         return loss
 

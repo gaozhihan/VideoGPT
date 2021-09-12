@@ -50,6 +50,8 @@ class AttentionStack(nn.Module):
             decode: the enumerated rasterscan order of the current idx being sampled
             decode_step: a tuple representing the current idx being sampled
         """
+        # if decode_step is not None and decode_step > 0:
+        #     return x
         x = right_shift(x, decode_step)
         x = self.pos_embd(x, decode_step, decode_idx)
         for net in self.attn_nets:
@@ -186,6 +188,7 @@ class MultiHeadAttention(nn.Module):
                                     v=torch.zeros(v_shape, dtype=v.dtype, device=q.device))
                 else:
                     # cache only once in the non-causal case
+                    # if not causal, k and v are cond frames
                     self.cache = dict(k=k.clone(), v=v.clone())
             if self.causal:
                 idx = (slice(None, None), slice(None, None), *[slice(i, i+ 1) for i in decode_idx])
@@ -215,7 +218,7 @@ class FullAttention(nn.Module):
     def forward(self, q, k, v, decode_step, decode_idx):
         mask = self.mask if self.causal else None
         if decode_step is not None and mask is not None:
-            mask = mask[[decode_step]]
+            mask = mask[[decode_step]]  # shape = (1, seq_len)
 
         old_shape = q.shape[2:-1]
         q = q.flatten(start_dim=2, end_dim=-2)
@@ -473,6 +476,18 @@ class AddBroadcastPosEmbed(nn.Module):
     def forward(self, x, decode_step=None, decode_idx=None):
         embs = []
         for i in range(self.n_dim):
+            # i = 0
+            # e.shape = (t, embed_dim/3)
+            # e.shape = (1, t, 1, 1, embed_dim/3)
+            # e.shape = (1, t, h, w, embed_dim/3)
+            # i = 1
+            # e.shape = (h, embed_dim/3)
+            # e.shape = (1, 1, h, 1, embed_dim/3)
+            # e.shape = (1, t, h, w, embed_dim/3)
+            # i = 2
+            # e.shape = (w, embed_dim/3)
+            # e.shape = (1, 1, 1, w, embed_dim/3)
+            # e.shape = (1, t, h, w, embed_dim/3)
             e = self.emb[f'd_{i}']
             if self.dim == -1:
                 # (1, 1, ..., 1, self.shape[i], 1, ..., -1)
@@ -513,8 +528,8 @@ def right_shift(x, decode_step):
         return x
 
     x_shape = list(x.shape)
-    x = x.flatten(start_dim=1, end_dim=-2) # (b, seq_len, embd_dim)
-    x = F.pad(x[:, :-1], (0, 0, 1, 0))
+    x = x.flatten(start_dim=1, end_dim=-2)  # (b, seq_len*h*w, embd_dim)
+    x = F.pad(x[:, :-1], (0, 0, 1, 0))  # shift seq_len*h*w elements by 1
     x = x.view(*x_shape)
 
     return x

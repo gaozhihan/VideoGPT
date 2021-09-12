@@ -20,6 +20,8 @@ data = VideoData(args)
 loader = data.test_dataloader()
 batch = next(iter(loader))
 batch = {k: v.cuda() for k, v in batch.items()}
+# {'video': torch.Tensor,  # shape = (b, c, t, h, w)
+#  'label': torch.Tensor,  # shape = (b, )}  # here b = batch_size * num_gpus
 
 samples = gpt.sample(n, batch)
 save_video_grid(samples, 'samples.mp4')
