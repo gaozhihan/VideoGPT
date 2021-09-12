@@ -19,8 +19,8 @@ Change the `cudatoolkit` version compatible to your machine.
 
 [comment]: <> (```)
 ```
-python -m pip install torch==1.8.1+cu111 torchvision==0.9.1+cu111 torchaudio==0.8.1 -f https://download.pytorch.org/whl/lts/1.8/torch_lts.html
-python -m pip install pytorch-lightning==1.3.5
+python -m pip install torch==1.8.1+cu111 torchvision==0.9.1+cu111 torchtext==0.9.1 -f https://download.pytorch.org/whl/lts/1.8/torch_lts.html
+python -m pip install pytorch-lightning==1.2.8
 python -m pip install -U -e . --no-build-isolation
 ```
 
@@ -83,7 +83,7 @@ sequence_length = 16
 resolution = 128
 device = torch.device('cuda')
 
-vqvae = load_vqvae('kinetics_stride2x4x4')
+vqvae = load_vqvae('kinetics_stride2x4x4').to(device)
 video = read_video(video_filename, pts_unit='sec')[0]
 video = preprocess(video, resolution, sequence_length).unsqueeze(0).to(device)
 
@@ -135,6 +135,11 @@ You can download a pretrained VQ-VAE, or train your own. Afterwards, use the `sc
 * `--data_path <path>`: path to an `hdf5` file or a folder containing `train` and `test` folders with subdirectories of videos
 * `--resolution 128`: spatial resolution to train on 
 * `--sequence_length 16`: temporal resolution, or video clip length
+
+### Example Training Command:
+```
+python scripts/train_videogpt.py --vqvae ucf101_stride4x4x4 --n_cond_frames 4 --hidden_dim 576 --heads 4 --layers 8 --gpus 4 --batch_size 2 --num_workers 8 --resolution 128 --sequence_length 16 --data_path ./datasets/ucf101
+```
 
 ## Sampling VideoGPT
 After training, the VideoGPT model can be sampled using the `scripts/sample_videogpt.py`. You may need to install `ffmpeg`: `sudo apt-get install ffmpeg`
