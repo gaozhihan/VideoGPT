@@ -144,7 +144,7 @@ class Codebook(nn.Module):
     def _init_embeddings(self, z):
         # z: [b, c, t, h, w]
         self._need_init = False
-        flat_inputs = shift_dim(z, 1, -1).flatten(end_dim=-2)
+        flat_inputs = shift_dim(z, 1, -1).flatten(end_dim=-2)   # (b*t*h*w, c)
         y = self._tile(flat_inputs)
 
         d = y.shape[0]
