@@ -11,6 +11,8 @@ def main():
     parser = pl.Trainer.add_argparse_args(parser)
     parser = VQVAE.add_model_specific_args(parser)
     parser.add_argument('--data_path', type=str, default='/home/wilson/data/datasets/bair.hdf5')
+    # parser.add_argument('--data_path', type=str, default='/home/ubuntu/file/github/VideoGPT/datasets/bair.hdf5')
+    parser.add_argument('--data_path', type=str, default='/home/ubuntu/file/github/VideoGPT/datasets/bair/bair.hdf5')
     parser.add_argument('--sequence_length', type=int, default=16)
     parser.add_argument('--resolution', type=int, default=64)
     parser.add_argument('--batch_size', type=int, default=32)
