@@ -1,6 +1,7 @@
 # VideoGPT: Video Generation using VQ-VAE and Transformers
 
 [[Paper]](https://arxiv.org/abs/2104.10157)[[Website]](https://wilson1yan.github.io/videogpt/index.html)[[Colab]](https://colab.research.google.com/github/wilson1yan/VideoGPT/blob/master/notebooks/Using_VideoGPT.ipynb)
+Integrated to [Huggingface Spaces](https://huggingface.co/spaces) with [Gradio](https://github.com/gradio-app/gradio). See demo: [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/akhaliq/VideoGPT)
 
 We present VideoGPT: a conceptually simple architecture for scaling likelihood based generative modeling to natural videos. VideoGPT uses VQ-VAE that learns downsampled discrete latent representations of a raw video by employing 3D convolutions and axial self-attention. A simple GPT-like architecture is then used to autoregressively model the discrete latents using spatio-temporal position encodings. Despite the simplicity in formulation and ease of training, our architecture is able to generate samples competitive with state-of-the-art GAN models for video generation on the BAIR Robot dataset, and generate high fidelity natural images from UCF-101 and Tumbler GIF Dataset (TGIF). We hope our proposed architecture serves as a reproducible reference for a minimalistic implementation of transformer based video generation models.
 
@@ -11,7 +12,8 @@ We present VideoGPT: a conceptually simple architecture for scaling likelihood b
 ## Installation
 Change the `cudatoolkit` version compatible to your machine.
 ```bash
-conda install --yes -c pytorch pytorch=1.7.1 torchvision cudatoolkit=11.0
+conda install --yes -c conda-forge cudatoolkit=11.0 cudnn
+pip install torch==1.7.1+cu110 torchvision==0.8.2+cu110 torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html
 pip install git+https://github.com/wilson1yan/VideoGPT.git
 ```
 
